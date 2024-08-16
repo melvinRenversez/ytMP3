@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Télécharger et Convertir YouTube en MP3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        .download-link {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Télécharger et Convertir YouTube en MP3</h1>
+    <input type="text" id="videoUrl" placeholder="Entrez l'URL de la vidéo YouTube" value="https://youtu.be/ZJSQxbedplM?si=Zz7TNmdNN0JTKv18"/>
+    <button onclick="downloadAndConvert()">Télécharger et Convertir</button>
+    <div id="status"></div>
+    <div class="download-link" id="downloadLinkContainer">
+        <a id="downloadLink" href="#" download>
+            <img src="https://img.icons8.com/material-outlined/24/000000/download.png" alt="Download" />
+            Télécharger le MP3
+        </a>
+    </div>
+
+    <script>
+        async function downloadAndConvert() {
+            const url = document.getElementById('videoUrl').value;
+            const statusElement = document.getElementById('status');
+            const downloadLinkContainer = document.getElementById('downloadLinkContainer');
+            const downloadLink = document.getElementById('downloadLink');
+
+            if (!url) {
+                statusElement.textContent = 'Veuillez entrer une URL.';
+                return;
+            }
+
+            statusElement.textContent = 'Traitement en cours...';
+
+            try {
+                const response = await fetch('http://192.168.0.41:3000/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur de traitement');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    statusElement.textContent = 'Téléchargement terminé.';
+                    downloadLink.href = data.downloadUrl;
+                    downloadLinkContainer.style.display = 'block';
+                } else {
+                    statusElement.textContent = 'Erreur lors du téléchargement.';
+                }
+            } catch (error) {
+                statusElement.textContent = `Erreur: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
